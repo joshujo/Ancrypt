@@ -1,0 +1,88 @@
+.LoginContainerContainer {
+    height: 80vh;
+    width: 50vw;
+    min-width: 400px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    background-color: rgb(26, 26, 26);
+    border: 0.5px solid white;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    align-items: center ;
+}
+
+.LoginContainer {
+    height: 60vh;
+    width: 50vw;
+    min-width: 400px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    align-items: center ;
+    overflow: auto;
+    overflow-y: visible;
+    transform: translateY(-(80%/70%));
+}
+
+.LoginContainer::-webkit-scrollbar {
+    width: 8px;
+}
+
+.LoginContainer::-webkit-scrollbar-track {
+    background-color: rgb(48, 48, 48);
+}
+
+.LoginTitle {
+    position: absolute;
+    top: 10px;
+}
+
+.FileCard {
+    width: 90%;
+    height: 150px;
+    background-color: rgb(48, 48, 48);
+    position: relative;
+}
+
+.FileCardName {
+    margin-left: 20px;
+}
+
+.FileCard .FileCardButton {
+    right: 50px;
+    position: absolute;
+    bottom: 10px;;
+}
+
+.FileCard .FileCardDelete {
+    position: absolute;
+    bottom: 10px;
+    right: 5px;
+}
+
+.NewVaultContainer {
+    position: relative;
+    width: 70vw;
+    height: 70vh;
+    background-color: rgb(47, 46, 46);
+    border-radius: 20px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+}
