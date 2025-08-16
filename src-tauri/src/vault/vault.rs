@@ -1,16 +1,12 @@
 //Hello anyone looking at this code, some of it might not make too much sense due to it being adapted from a CLI only version of this application
-
-use std::{ collections::HashMap, marker::PhantomData, path::PathBuf };
 use bincode::{
     self,
-    config::{ self, Configuration },
-    decode_from_slice,
-    encode_to_vec,
-    Decode,
-    Encode,
+    config::{self, Configuration},
+    decode_from_slice, encode_to_vec, Decode, Encode,
 };
-use std::fs;
 use std::env::var_os;
+use std::fs;
+use std::{collections::HashMap, marker::PhantomData, path::PathBuf};
 
 use crate::vault::master_password::{empty_master_password, init_master_password, Pbkdf2Component};
 
@@ -162,7 +158,12 @@ impl Vault<Unlocked> {
         }
     }
 
-    pub fn insert_password(&mut self, name: String, password: String, vault_name: &str) -> Result<(), &str> {
+    pub fn insert_password(
+        &mut self,
+        name: String,
+        password: String,
+        vault_name: &str,
+    ) -> Result<(), &str> {
         match self.passwords.contains_key(&name) {
             true => {
                 return Err("Name already in use");
@@ -192,15 +193,14 @@ impl Vault<Unlocked> {
 
         let decoded = match decode_from_slice::<Vault<Unlocked>, Configuration>(&file, config) {
             Ok((mut result, _)) => {
-                let decrypted_data = result.pbkdf2_component.encrypted_passwords.decrypt(
-                    result.pbkdf2_component.derived_key
-                );
-                let decoded = match
-                    decode_from_slice::<HashMap<String, String>, Configuration>(
-                        &decrypted_data,
-                        config
-                    )
-                {
+                let decrypted_data = result
+                    .pbkdf2_component
+                    .encrypted_passwords
+                    .decrypt(result.pbkdf2_component.derived_key);
+                let decoded = match decode_from_slice::<HashMap<String, String>, Configuration>(
+                    &decrypted_data,
+                    config,
+                ) {
                     Ok(r) => r.0,
                     Err(_) => HashMap::new(),
                 };
@@ -211,7 +211,7 @@ impl Vault<Unlocked> {
                 };
                 data
             }
-            Err(_) => { self.clone() }
+            Err(_) => self.clone(),
         };
 
         *self = decoded;
@@ -227,7 +227,10 @@ impl Vault<Unlocked> {
     }
 }
 
-impl<State: LockState> Vault<State> where Self: bincode::Encode {
+impl<State: LockState> Vault<State>
+where
+    Self: bincode::Encode,
+{
     pub fn check_lock(&self) -> bool {
         State::is_locked()
     }
@@ -241,11 +244,10 @@ impl<State: LockState> Vault<State> where Self: bincode::Encode {
             state: PhantomData::<Locked>,
         };
         let encoded = encode_to_vec(&self.passwords, config).unwrap();
-        to_encrypt.pbkdf2_component.encrypted_passwords =
-            to_encrypt.pbkdf2_component.encrypted_passwords.encrypt_data(
-                self.pbkdf2_component.derived_key,
-                encoded
-            );
+        to_encrypt.pbkdf2_component.encrypted_passwords = to_encrypt
+            .pbkdf2_component
+            .encrypted_passwords
+            .encrypt_data(self.pbkdf2_component.derived_key, encoded);
         let encoded = encode_to_vec(&to_encrypt, config).unwrap();
         fs::write(&path, encoded).unwrap();
     }
@@ -291,10 +293,10 @@ fn get_data_path(vault_name: &str) -> PathBuf {
 
 pub fn attempt_unlock(
     pass: Vault<Locked>,
-    password: &str
+    password: &str,
 ) -> Result<Vault<Unlocked>, Vault<Locked>> {
     match pass.pbkdf2_component.verify_password(password) {
-        Ok(()) => { Ok(pass.unlock(password)) }
+        Ok(()) => Ok(pass.unlock(password)),
         Err(_) => Err(pass),
     }
 }

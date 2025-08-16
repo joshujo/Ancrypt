@@ -23,6 +23,18 @@
   min-width: 400px;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: white
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: white;
+  }
+}
+
 .container {
   margin: 0;
   padding-top: 10vh;

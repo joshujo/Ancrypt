@@ -1,7 +1,11 @@
 use std::num::NonZeroU32;
 
-use bincode::{ Decode, Encode };
-use ring::{ self, digest, pbkdf2::{ self, derive }, rand::{ self, generate } };
+use bincode::{Decode, Encode};
+use ring::{
+    self, digest,
+    pbkdf2::{self, derive},
+    rand::{self, generate},
+};
 
 use crate::vault::encrypted_password::EncryptedPasswords;
 
@@ -37,7 +41,7 @@ impl Pbkdf2Component {
             self.pbkdf2_iterations,
             &salt,
             password.as_bytes(),
-            &mut to_store
+            &mut to_store,
         );
         self.derived_key = to_store;
         self.master_password = (username, to_store);
@@ -53,15 +57,14 @@ impl Pbkdf2Component {
     pub fn verify_password(&self, attempted_password: &str) -> Result<(), Error> {
         let salt = self.salt(&self.master_password.0);
         let actual_password = &self.master_password.1;
-        pbkdf2
-            ::verify(
-                PBKDF2_ALG,
-                self.pbkdf2_iterations,
-                &salt,
-                attempted_password.as_bytes(),
-                actual_password
-            )
-            .map_err(|_| Error::WrongUsernameOrPassword)
+        pbkdf2::verify(
+            PBKDF2_ALG,
+            self.pbkdf2_iterations,
+            &salt,
+            attempted_password.as_bytes(),
+            actual_password,
+        )
+        .map_err(|_| Error::WrongUsernameOrPassword)
     }
 
     pub fn sanitise(self) -> Pbkdf2Component {
@@ -91,16 +94,13 @@ pub fn init_master_password(password: &str) -> Pbkdf2Component {
         pass.pbkdf2_iterations,
         &pass.db_salt_component,
         password.as_bytes(),
-        &mut out
+        &mut out,
     );
 
     pass.create_password(password);
     pass.derived_key = out;
-    pass.encrypted_passwords = EncryptedPasswords::initialise_data(
-        pass.encrypted_passwords,
-        pass.derived_key,
-        vec![]
-    );
+    pass.encrypted_passwords =
+        EncryptedPasswords::initialise_data(pass.encrypted_passwords, pass.derived_key, vec![]);
     pass
 }
 

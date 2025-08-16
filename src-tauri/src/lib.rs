@@ -1,6 +1,6 @@
-pub mod vault;
 pub mod commands;
 pub mod set_up;
+pub mod vault;
 use tauri::async_runtime::Mutex;
 
 use crate::commands::commands::*;
@@ -13,7 +13,8 @@ fn greet(name: &str) -> String {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default() 
+    tauri::Builder::default()
+        .plugin(tauri_plugin_clipboard_manager::init())
         .manage(Mutex::new(VaultCollection::default()))
         .setup(|_| {
             set_up::set_up();
@@ -25,7 +26,11 @@ pub fn run() {
             greet,
             request_vaults,
             create_vault,
-            open_vault
+            open_vault,
+            retrieve_password_list,
+            copy_to_clipboard,
+            add_password,
+            lock_vault
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

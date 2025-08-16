@@ -1,19 +1,12 @@
-use bincode::{ self, Decode, Encode };
+use bincode::{self, Decode, Encode};
 use ring::{
     self,
     aead::{
-        Aad,
-        BoundKey,
-        Nonce,
-        NonceSequence,
-        OpeningKey,
-        SealingKey,
-        UnboundKey,
-        CHACHA20_POLY1305,
+        Aad, BoundKey, Nonce, NonceSequence, OpeningKey, SealingKey, UnboundKey, CHACHA20_POLY1305,
     },
     digest,
     error::Unspecified,
-    rand::{ generate, SystemRandom },
+    rand::{generate, SystemRandom},
 };
 
 const CREDENTIAL_LEN: usize = digest::SHA512_256_OUTPUT_LEN;
@@ -83,7 +76,9 @@ impl EncryptedPasswords {
 
         let mut data = data;
 
-        sealing_key.seal_in_place_append_tag(Aad::from(self.aad), &mut data).unwrap();
+        sealing_key
+            .seal_in_place_append_tag(Aad::from(self.aad), &mut data)
+            .unwrap();
 
         EncryptedPasswords {
             aad: self.aad,
@@ -126,7 +121,9 @@ impl EncryptedPasswords {
 
         let mut data = data;
 
-        sealing_key.seal_in_place_append_tag(Aad::from(self.aad), &mut data).unwrap();
+        sealing_key
+            .seal_in_place_append_tag(Aad::from(self.aad), &mut data)
+            .unwrap();
 
         EncryptedPasswords {
             aad: self.aad,

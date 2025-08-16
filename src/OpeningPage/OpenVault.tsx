@@ -6,9 +6,9 @@ import {
   TextField,
   ThemeProvider,
 } from "@mui/material";
-import { green } from "@mui/material/colors";
 import { invoke } from "@tauri-apps/api/core";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 interface OpenVaultProps {
   name: string;
@@ -24,6 +24,7 @@ export default function OpenVault({ name, id }: OpenVaultProps) {
   const [open, setOpen] = useState(false);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleOpen = () => {
     setOpen(true);
@@ -46,7 +47,7 @@ export default function OpenVault({ name, id }: OpenVaultProps) {
       password: password,
     }).then((result) => {
       if (result.success == true) {
-        alert("Unlocked");
+        navigate("/Vault")
       } else {
         alert("No work");
       }
@@ -111,6 +112,7 @@ export default function OpenVault({ name, id }: OpenVaultProps) {
             >
               <TextField
                 label="Password"
+                autoFocus={true}
                 value={password}
                 onChange={handlePasswordChange}
                 type="password"

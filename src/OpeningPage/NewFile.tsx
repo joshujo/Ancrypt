@@ -48,7 +48,6 @@ export default function NewFile({ setChange }: props) {
       vault_password: password,
     }).then((e) => {
       if (e.success) {
-        alert("It worked");
         setChange((prev) => prev + 1);
         setVaultName("");
         setPassword("");

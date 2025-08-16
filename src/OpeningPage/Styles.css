@@ -16,6 +16,13 @@
     align-items: center ;
 }
 
+@media (prefers-color-scheme: light) {
+    .LoginContainerContainer {
+        background-color: rgb(117, 117, 117);
+        border: 0.5px solid black;
+    }
+}
+
 .LoginContainer {
     height: 60vh;
     width: 50vw;
