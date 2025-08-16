@@ -3,7 +3,7 @@ use std::{env, fs::{self, create_dir_all}, path::PathBuf};
 use serde::Serialize;
 use tauri::{async_runtime::Mutex, State};
 
-use crate::vault::vault::{Unlocked, Vault};
+use crate::vault::vault::{attempt_unlock, init, Unlocked, Vault};
 
 #[derive(Serialize, Clone)]
 pub struct VaultSurfaceData {
@@ -15,7 +15,8 @@ type Error = String;
 
 #[derive(Default)]
 pub struct VaultCollection {
-    pub vaults: Vec<VaultSurfaceData>
+    pub vaults: Vec<VaultSurfaceData>,
+    pub open_vault: Option<Vault<Unlocked>>
 }
 
 
@@ -58,18 +59,15 @@ pub async fn request_vaults(state: State<'_, Mutex<VaultCollection>>) -> Result<
 }
 
 #[derive(Serialize, Clone)]
-pub struct CreateVaultResult {
+pub struct VaultResult {
     success: bool,
     message: Option<String>
 }
 
-#[derive(Default)]
-pub struct OpenVault(pub Option<Vault<Unlocked>>);
-
 #[tauri::command(rename_all = "snake_case")]
-pub async fn create_vault(state: tauri::State<'_, Mutex<OpenVault>>, vault_name: String, vault_password: String) -> Result<CreateVaultResult, ()> {
+pub async fn create_vault(state: tauri::State<'_, Mutex<VaultCollection>>, vault_name: String, vault_password: String) -> Result<VaultResult, ()> {
     if vault_name.len() < 1 || vault_password.len() < 1 {
-        return Ok(CreateVaultResult {
+        return Ok(VaultResult {
             success: false,
             message: Some(String::from("Invalid vault name and/or password. Try again!"))
         })
@@ -82,7 +80,32 @@ pub async fn create_vault(state: tauri::State<'_, Mutex<OpenVault>>, vault_name:
 
     let new = Vault::new();
     let vault = new.create_new(password, name);
-    state.lock().await.0 = Some(vault);
+    state.lock().await.open_vault = Some(vault);
 
-    Ok(CreateVaultResult { success: true, message: None })
+    Ok(VaultResult { success: true, message: None })
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub async fn open_vault(state: tauri::State<'_, Mutex<VaultCollection>>, id: u32, password: String) -> Result<VaultResult, ()>{
+    let mut lock = state.lock().await;
+
+    let vault = match lock.vaults.iter().find(|&x| x.id == id) {
+        Some(ok) => ok,
+        None => return Ok(VaultResult { success: false, message: Some(String::from("Something went wrong")) })
+    };
+
+    let pending = match init(&vault.name) {
+        Some(ok) => ok,
+        None => return Ok(VaultResult { success: false, message: Some(String::from("Something went wrong")) })
+    };
+
+    let unlocked = match attempt_unlock(pending, &password) {
+        Ok(ok) => ok,
+        Err(_) => return Ok(VaultResult { success: false, message: Some(String::from("Incorrect Password")) })
+    };
+
+    lock.open_vault = Some(unlocked);
+    
+
+    Ok(VaultResult { success: true, message: None })
 }

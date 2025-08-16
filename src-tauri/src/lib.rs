@@ -15,7 +15,6 @@ fn greet(name: &str) -> String {
 pub fn run() {
     tauri::Builder::default() 
         .manage(Mutex::new(VaultCollection::default()))
-        .manage(Mutex::new(OpenVault::default()))
         .setup(|_| {
             set_up::set_up();
 
@@ -25,7 +24,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             greet,
             request_vaults,
-            create_vault
+            create_vault,
+            open_vault
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

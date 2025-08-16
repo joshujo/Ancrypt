@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import "./Styles.css";
-import { Button, IconButton } from "@mui/material";
+import { IconButton } from "@mui/material";
 import NewFile from "./NewFile";
 import { invoke } from "@tauri-apps/api/core";
 
 import { lazy } from "react";
+import OpenVault from "./OpenVault";
 
 const DeleteIcon = lazy(() => import("@mui/icons-material/Delete"));
 
@@ -50,17 +51,7 @@ function FileCard(props: FileName) {
   return (
     <div className="FileCard">
       <h3 className="FileCardName">{props.name}</h3>
-      <Button
-        className="FileCardButton"
-        sx={{
-          color: "white",
-          backgroundColor: "rgba(22, 45, 163, 0.53)",
-          right: 0,
-          position: "relative",
-        }}
-      >
-        Open Vault
-      </Button>
+      <OpenVault {...props}/>
       <IconButton
         className="FileCardDelete"
         sx={{

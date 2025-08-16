@@ -43,6 +43,11 @@
     background-color: rgb(48, 48, 48);
 }
 
+.LoginContainer::-webkit-scrollbar-thumb {
+    background-color: rgb(0, 0, 0);
+    border-radius: 5px;
+}
+
 .LoginTitle {
     position: absolute;
     top: 10px;
@@ -85,4 +90,28 @@
     justify-content: center;
     align-items: center;
     gap: 50px;
+}
+
+.PasswordContainer {
+    position: relative;
+    left: 50%;
+    top: 50%;
+    height: 50vh;
+    width: 65vw;
+    transform: translate(-50%, -50%);
+    background-color: rgb(49, 49, 49);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50px;
+}
+
+.PasswordForm {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
