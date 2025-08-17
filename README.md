@@ -39,7 +39,7 @@ Ancrypt currently includes all the basic features of any password manager. It al
 
 8. To delete any stored passwords or vaults, click the *bin* icon and enter the confirmation code to permanently discard the requested data.
 
-9. Vaults are stored in `C:/users/{user}/Appdata/Roaming/Ancrypt/Vaults`
+9. Vaults are stored in `C:/users/{user}/AppData/Roaming/Ancrypt/Vaults`
 
 ## What security features are included?
 
@@ -77,7 +77,7 @@ There is no way to recover the vault due to the security measures put in place.
 
 #### Can I sync my vaults across devices?
 
-Yes! Simply copy your vaults over from `C:/users/{user}/Appdata/Roaming/Ancrypt/Vaults` to your new device. Each file is self encrypted and is therefore portable.
+Yes! Simply copy your vaults over from `C:/users/{user}/AppData/Roaming/Ancrypt/Vaults` to your new device. Each file is self encrypted and is therefore portable.
 
 ## Disclaimer
 
