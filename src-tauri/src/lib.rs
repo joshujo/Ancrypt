@@ -30,7 +30,11 @@ pub fn run() {
             retrieve_password_list,
             copy_to_clipboard,
             add_password,
-            lock_vault
+            lock_vault,
+            delete_password,
+            request_delete_vault,
+            five_number_rng,
+            clear_clipboard
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

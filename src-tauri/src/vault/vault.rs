@@ -176,6 +176,23 @@ impl Vault<Unlocked> {
         }
     }
 
+    pub fn delete_password(
+        &mut self,
+        name: String,
+        vault_name: &str
+    ) -> Result<(), &str> {
+        match self.passwords.contains_key(&name) {
+            true => {
+                self.passwords.remove(&name).unwrap();
+                self.save_to_file(vault_name);
+                return Ok(());
+            },
+            false => {
+                return Err("That's not an existing password")
+            }
+        }
+    }
+
     pub fn list_password(&self) -> Vec<String> {
         let mut vector = vec![];
 
@@ -239,7 +256,7 @@ where
         let path = get_data_path(vault_name);
         let config = config::standard();
         let mut to_encrypt = Vault::<Locked> {
-            passwords: HashMap::new(),
+            passwords: self.passwords.clone(),
             pbkdf2_component: self.pbkdf2_component.clone(),
             state: PhantomData::<Locked>,
         };
@@ -299,4 +316,11 @@ pub fn attempt_unlock(
         Ok(()) => Ok(pass.unlock(password)),
         Err(_) => Err(pass),
     }
+}
+
+pub fn delete_vault(
+    vault_name: &str
+) -> Result<(), String> {
+    let path = get_data_path(vault_name);
+    fs::remove_file(path).map_err(|e| e.to_string())
 }

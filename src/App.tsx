@@ -5,7 +5,6 @@ import Vault from "./Vault/Vault";
 
 function App() {
 
-
   return (
     <Router>
       <Routes>

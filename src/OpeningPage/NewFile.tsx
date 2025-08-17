@@ -94,7 +94,7 @@ export default function NewFile({ setChange }: props) {
       <ThemeProvider theme={theme}>
         <Button
           sx={{
-            bottom: "20px",
+            bottom: "30px",
             position: "absolute",
             backgroundColor: "#23a555ff",
             color: "white",
@@ -145,7 +145,6 @@ export default function NewFile({ setChange }: props) {
           </form>
         </Modal>
         <Modal open={loading}>
-          <>
             <div
               style={{
                 display: "flex",
@@ -153,7 +152,7 @@ export default function NewFile({ setChange }: props) {
                 justifyContent: "center",
                 position: "relative",
                 height: "100vh",
-                width: "100wh",
+                width: "100vh",
               }}
             >
               <CircularProgress
@@ -165,7 +164,6 @@ export default function NewFile({ setChange }: props) {
                 }}
               />
             </div>
-          </>
         </Modal>
       </ThemeProvider>
     </div>

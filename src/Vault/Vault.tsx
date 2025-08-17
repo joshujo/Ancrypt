@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 import "./Vault.css";
 import { useNavigate } from "react-router";
+import DeletePassword from "./DeletePassword";
 
 export default function Vault() {
   const [passwordList, setPasswordList] = useState<null | string[]>(null);
@@ -34,6 +35,10 @@ export default function Vault() {
         setNewName("");
         navigate("/");
     })
+  }
+
+  const handleClearClipboard = () => {
+    invoke("clear_clipboard");
   }
 
   const handlePasswordSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -92,7 +97,7 @@ export default function Vault() {
         <div className="VaultSideContainer">
           <div className="PasswordPanelContainer">
             {passwordList && passwordList.length > 0 ? (
-              passwordList.map((data, index) => <PasswordPanel key={index} password={data} />)
+              passwordList.map((data, index) => <PasswordPanel key={index} password={data} change={setChange}  />)
             ) : (
               <p>No passwords yet, create some passwords to store</p>
             )}
@@ -141,6 +146,16 @@ export default function Vault() {
             width: "100px"
         }}
         >Lock Vault</Button>
+        <Button
+        onClick={handleClearClipboard}
+        sx={{
+            backgroundColor: "#292929ff",
+            border: "1px solid white",
+            color: "white",
+            width: "100px",
+            marginTop: "10px",
+        }}
+        >Clear Clipboard</Button>
         </div>
       </div>
     </div>
@@ -149,9 +164,10 @@ export default function Vault() {
 
 interface PasswordPanelProps {
   password: string;
+  change: React.Dispatch<React.SetStateAction<number>>;
 }
 
-function PasswordPanel({ password }: PasswordPanelProps) {
+function PasswordPanel({ password, change }: PasswordPanelProps) {
 
     const copy = () => {
         invoke("copy_to_clipboard", {
@@ -168,12 +184,21 @@ function PasswordPanel({ password }: PasswordPanelProps) {
             <h4>{password}</h4>
         )
       }
-      <Button 
+      <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        gap: "10px",
+      }}
+      >
+        <Button 
       sx={{
         color: "white",
         backgroundColor: "rgba(0, 128, 255, 0.47)"
       }}
       onClick={copy}>Copy to clipboard</Button>
+      <DeletePassword change={change} password={password}/>
+      </div>
     </div>
   );
 }

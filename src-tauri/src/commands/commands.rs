@@ -5,7 +5,7 @@ use tauri::{ async_runtime::Mutex, Manager, State };
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tokio::time;
 
-use crate::vault::{ vault::{ attempt_unlock, init, Unlocked, Vault } };
+use crate::vault::vault::{ attempt_unlock, delete_vault, init, Unlocked, Vault };
 
 #[derive(Serialize, Clone)]
 pub struct VaultSurfaceData {
@@ -211,11 +211,59 @@ pub async fn add_password(
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn lock_vault(app: tauri::AppHandle, state: tauri::State<'_, Mutex<VaultCollection>>) -> Result<(), ()> {
+pub async fn delete_password(
+    state: State<'_, Mutex<VaultCollection>>,
+    name: String
+) -> Result<(), String> {
+    let mut lock = state.lock().await;
+    let vault_name = lock.open_vault.as_ref().unwrap().name.clone();
+    let vault = &mut lock.open_vault.as_mut().unwrap().vault;
+
+    vault.delete_password(name, &vault_name).map_err(|e| String::from(e))?;
+
+    Ok(())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub async fn lock_vault(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, Mutex<VaultCollection>>
+) -> Result<(), ()> {
     let mut lock = state.lock().await;
     app.app_handle().clipboard().clear().unwrap();
     if let Some(open_vault) = lock.open_vault.take() {
         open_vault.vault.lock();
     }
     Ok(())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub async fn request_delete_vault(
+    state: State<'_, Mutex<VaultCollection>>,
+    vault: u32
+) -> Result<(), ()> {
+    let lock = state.lock().await;
+
+    let vault = lock.vaults.iter().find(|&x| x.id == vault);
+
+    match vault {
+        Some(x) => {
+            let name = &x.name;
+            delete_vault(name).unwrap();
+            return Ok(())
+        },
+        None => {
+            return Err(());
+        }
+    }
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn five_number_rng() -> u32 {
+rand::random_range(111111..1000000)
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn clear_clipboard(app: tauri::AppHandle) {
+    app.app_handle().clipboard().clear().unwrap();
 }

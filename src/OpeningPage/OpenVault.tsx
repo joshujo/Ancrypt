@@ -24,6 +24,7 @@ export default function OpenVault({ name, id }: OpenVaultProps) {
   const [open, setOpen] = useState(false);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleOpen = () => {
@@ -47,9 +48,10 @@ export default function OpenVault({ name, id }: OpenVaultProps) {
       password: password,
     }).then((result) => {
       if (result.success == true) {
+        setErrorMessage("")
         navigate("/Vault")
       } else {
-        alert("No work");
+        setErrorMessage("The password is incorrect")
       }
       setLoading(false);
     });
@@ -129,6 +131,11 @@ export default function OpenVault({ name, id }: OpenVaultProps) {
               </Button>
             </form>
           </ThemeProvider>
+          <p
+          style={{
+            color: "red"
+          }}
+          >{errorMessage}</p>
         </div>
       </Modal>
 
