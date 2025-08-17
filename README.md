@@ -3,11 +3,11 @@
 ## Table of Contents
 
 - [What is Ancrypt?](#what-is-ancrypt)
-- [Features](#features)
+- [What is currently included?](#what-is-currently-included)
 - [Getting Started](#getting-started)
-- [Security Features](#security-features)
-- [Security Limitations](#security-limitations)
-- [Usage Recommendation](#usage-recommendation)
+- [What security features are included?](#what-security-features-are-included)
+- [What security features aren't included?](#what-security-features-arent-included)
+- [Should I use Ancrypt for more than just demonstration purposes?](#should-i-use-ancrypt-for-more-than-just-demonstration-purposes)
 - [FAQ](#faq)
     - [What if I lose or forget my password?](#what-if-i-lose-or-forget-my-password)
     - [Can I sync my vaults across devices?](#can-i-sync-my-vaults-across-devices)
