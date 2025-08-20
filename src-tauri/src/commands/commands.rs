@@ -1,5 +1,6 @@
 use std::{ env, fs::{ self, create_dir_all }, path::PathBuf };
 
+use rand::random_range;
 use serde::Serialize;
 use tauri::{ async_runtime::Mutex, Manager, State };
 use tauri_plugin_clipboard_manager::ClipboardExt;
@@ -308,9 +309,12 @@ pub async fn generate_password(state: State<'_, Mutex<VaultCollection>>, name: S
     let name_unique = vault.vault.list_password().iter().find(|&x| x == &name).is_none();
 
     if name.len() > 1 && name_unique {
-        let password: Vec<char> = rand::random_iter().take(18).collect();
-        let string: String = password.iter().collect();
-        vault.vault.insert_password(name, string, &vault.name).unwrap();
+        let password = (0..18)
+            .map(|_| {
+                let x = random_range(0..CHAR_SET.len());
+                CHAR_SET[x]
+            }).collect();
+        vault.vault.insert_password(name, password, &vault.name).unwrap();
         Ok(())
     } else if name.len() < 1 {
         Err(String::from("You need to insert a name for your password."))

@@ -268,7 +268,10 @@ function GeneratePassword({change}: GeneratePasswordChange) {
   return (
     <div className="GeneratePassword">
       <h1>Generate New Password</h1>
-      <p>
+      <p style={{
+        position: "relative",
+        marginLeft: "10px"
+      }}>
         This will generate a random alphanumeric 18 character UTF-8 password
       </p>
       <ThemeProvider theme={theme}>
@@ -279,6 +282,7 @@ function GeneratePassword({change}: GeneratePasswordChange) {
             label="Password name"
             value={name}
             onChange={handleNameChange}
+            autoComplete="off"
           />
           <Button
           sx={{
