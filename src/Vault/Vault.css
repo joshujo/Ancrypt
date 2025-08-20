@@ -11,6 +11,7 @@
     justify-content: center;
     align-items: center;
     width: 50vw;
+    gap: 20px;
 }
 
 .NewPasswordForm {
@@ -64,4 +65,17 @@
     top: 50%;
     transform: translate(-50%, -50%);
     background-color: rgb(41, 40, 40);
+}
+
+.GeneratePassword {
+    background-color: rgb(41, 41, 41);
+    width: 40vw;
+    height: 280px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    border-radius: 20px;
+    justify-content: center;
+    position: relative;
+    gap: 10px;
 }

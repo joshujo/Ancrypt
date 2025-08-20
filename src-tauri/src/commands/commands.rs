@@ -4,8 +4,16 @@ use serde::Serialize;
 use tauri::{ async_runtime::Mutex, Manager, State };
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tokio::time;
+use zeroize::Zeroize;
 
 use crate::vault::vault::{ attempt_unlock, delete_vault, init, Unlocked, Vault };
+
+static CHAR_SET: &[char] = &[
+    'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+    'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+    '1','2','3','4','5','6','7','8','9','0',
+    '!','@','#','$','%','^','&','*','(',')','-','=','_','+','[',']','\\','{','}','|',';',':','\'','"','<','>','?',',','.','/','`','~'
+];
 
 #[derive(Serialize, Clone)]
 pub struct VaultSurfaceData {
@@ -19,12 +27,34 @@ struct OpenVault {
     name: String,
 }
 
+impl Drop for OpenVault {
+    fn drop(&mut self) {
+        self.name.zeroize();
+        self.vault.zeroize();
+    }
+}
+
 type Error = String;
 
 #[derive(Default)]
 pub struct VaultCollection {
     pub vaults: Vec<VaultSurfaceData>,
     open_vault: Option<OpenVault>,
+}
+
+impl VaultCollection {
+    pub fn clean(&mut self) {
+        let lock = &mut self.open_vault;
+        if let Some(lock) = lock.take() {
+            drop(lock);
+        }
+    }
+}
+
+impl Drop for VaultCollection {
+    fn drop(&mut self) {
+        self.clean();
+    }
 }
 
 #[tauri::command]
@@ -87,10 +117,10 @@ pub async fn create_vault(
         });
     }
 
-    let (name, password) = { (vault_name.trim(), vault_password.trim()) };
+    let (vault_name, mut password) = { (vault_name.trim().to_string(), vault_password.trim().to_string()) };
 
     let new = Vault::new();
-    let vault = new.create_new(password, name);
+    let vault = new.create_new(&password, &vault_name);
 
     let open_vault = OpenVault {
         vault,
@@ -98,6 +128,7 @@ pub async fn create_vault(
     };
 
     state.lock().await.open_vault = Some(open_vault);
+    password.zeroize();
 
     Ok(VaultResult { success: true, message: None })
 }
@@ -191,7 +222,7 @@ pub async fn add_password(
     name: String,
     password: String
 ) -> Result<(), String> {
-    if name.len() < 1 && password.len() < 1 {
+    if name.len() < 1 || password.len() < 1 {
         return Err(String::from("You need a password and a password name"));
     } else if name.len() < 1 {
         return Err(String::from("You need a password name"));
@@ -202,6 +233,8 @@ pub async fn add_password(
     let mut lock = state.lock().await;
     let vault_name = lock.open_vault.as_ref().unwrap().name.clone();
     let vault = &mut lock.open_vault.as_mut().unwrap().vault;
+
+    let password = password.trim().to_string();
 
     vault
         .insert_password(name, password, &vault_name)
@@ -230,10 +263,9 @@ pub async fn lock_vault(
     state: tauri::State<'_, Mutex<VaultCollection>>
 ) -> Result<(), ()> {
     let mut lock = state.lock().await;
+    lock.clean();
+    drop(lock);
     app.app_handle().clipboard().clear().unwrap();
-    if let Some(open_vault) = lock.open_vault.take() {
-        open_vault.vault.lock();
-    }
     Ok(())
 }
 
@@ -266,4 +298,23 @@ rand::random_range(111111..1000000)
 #[tauri::command(rename_all = "snake_case")]
 pub fn clear_clipboard(app: tauri::AppHandle) {
     app.app_handle().clipboard().clear().unwrap();
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub async fn generate_password(state: State<'_, Mutex<VaultCollection>>, name: String) -> Result<(), String> {
+    let mut lock = state.lock().await;
+    let vault = lock.open_vault.as_mut().unwrap();
+
+    let name_unique = vault.vault.list_password().iter().find(|&x| x == &name).is_none();
+
+    if name.len() > 1 && name_unique {
+        let password: Vec<char> = rand::random_iter().take(18).collect();
+        let string: String = password.iter().collect();
+        vault.vault.insert_password(name, string, &vault.name).unwrap();
+        Ok(())
+    } else if name.len() < 1 {
+        Err(String::from("You need to insert a name for your password."))
+    } else {
+        Err(String::from("You need to use a unique password name."))
+    }
 }

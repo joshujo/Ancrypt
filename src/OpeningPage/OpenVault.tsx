@@ -49,7 +49,7 @@ export default function OpenVault({ name, id }: OpenVaultProps) {
     }).then((result) => {
       if (result.success == true) {
         setErrorMessage("")
-        navigate("/Vault")
+        navigate("./Vault")
       } else {
         setErrorMessage("The password is incorrect")
       }
