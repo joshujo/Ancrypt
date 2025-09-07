@@ -67,11 +67,11 @@ impl Pbkdf2Component {
         .map_err(|_| Error::WrongUsernameOrPassword)
     }
 
-    pub fn sanitise(self) -> Pbkdf2Component {
+    pub fn sanitise(&self) -> Pbkdf2Component {
         Pbkdf2Component {
             derived_key: [0u8; CREDENTIAL_LEN],
             master_password: ([0; 128], [0; CREDENTIAL_LEN]),
-            ..self
+            ..self.clone()
         }
     }
 }

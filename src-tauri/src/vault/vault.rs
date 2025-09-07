@@ -7,8 +7,9 @@ use bincode::{
 use std::env::var_os;
 use std::fs;
 use std::{collections::HashMap, marker::PhantomData, path::PathBuf};
+use zeroize::Zeroize;
 
-use crate::vault::master_password::{empty_master_password, init_master_password, Pbkdf2Component};
+use crate::vault::{master_password::{empty_master_password, init_master_password, Pbkdf2Component}};
 
 pub enum RetrieveResult {
     Success,
@@ -44,6 +45,18 @@ pub struct Vault<State = Pending> {
     pbkdf2_component: Pbkdf2Component,
     state: PhantomData<State>,
 }
+
+impl<Unlocked> Zeroize for Vault<Unlocked> {
+    fn zeroize(&mut self) {
+        self.passwords.iter_mut().for_each(|(_, y)| {
+            y.zeroize();
+        });   
+
+        self.pbkdf2_component.derived_key.zeroize();
+        self.pbkdf2_component.encrypted_passwords.data.zeroize();
+    }
+}
+
 
 impl Vault {
     pub fn new() -> Self {
@@ -234,11 +247,11 @@ impl Vault<Unlocked> {
         *self = decoded;
     }
 
-    pub fn lock(self) -> Vault<Locked> {
-        let pbkdf2_component = self.pbkdf2_component.sanitise();
+    pub fn lock(mut self) -> Vault<Locked> {
+        self.zeroize();
         Vault {
             passwords: HashMap::new(),
-            pbkdf2_component: pbkdf2_component,
+            pbkdf2_component: self.pbkdf2_component,
             state: PhantomData::<Locked>,
         }
     }

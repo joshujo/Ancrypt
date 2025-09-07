@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { invoke } from "@tauri-apps/api/core";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 type props = {
   setChange: React.Dispatch<React.SetStateAction<number>>;
@@ -18,6 +19,8 @@ export default function NewFile({ setChange }: props) {
   const [vaultName, setVaultName] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const openNewFile = () => {
     setOpen(true);
@@ -53,6 +56,7 @@ export default function NewFile({ setChange }: props) {
         setPassword("");
         setLoading(false);
         setOpen(false);
+        navigate("/Vault");
       } else {
         alert(e.message);
         setLoading(false);
@@ -145,26 +149,26 @@ export default function NewFile({ setChange }: props) {
           </form>
         </Modal>
         <Modal open={loading}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                position: "relative",
-                height: "100vh",
-                width: "100vh",
-              }}
-            >
-              <CircularProgress
-                aria-busy="true"
-                size={200}
-                thickness={2}
-                sx={{
-                  position: "relative",
-                }}
-              />
-            </div>
-        </Modal>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            position: "relative",
+            height: "100vh",
+            width: "100wh",
+          }}
+        >
+          <CircularProgress
+            aria-busy="true"
+            size={200}
+            thickness={2}
+            sx={{
+              position: "relative",
+            }}
+          />
+        </div>
+      </Modal>
       </ThemeProvider>
     </div>
   );

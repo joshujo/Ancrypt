@@ -1,7 +1,7 @@
 pub mod commands;
 pub mod set_up;
 pub mod vault;
-use tauri::async_runtime::Mutex;
+use tauri::{async_runtime::Mutex, Manager, RunEvent};
 
 use crate::commands::commands::*;
 
@@ -34,8 +34,19 @@ pub fn run() {
             delete_password,
             request_delete_vault,
             five_number_rng,
-            clear_clipboard
+            clear_clipboard,
+            generate_password
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("No build?")
+        .run(|app_handle, event: tauri::RunEvent| {
+            match event {
+                RunEvent::ExitRequested {..} => {
+                    let app = app_handle.state::<Mutex<VaultCollection>>();
+                    let mut lock = app.blocking_lock();
+                    lock.clean();
+                },
+                _ => ()
+            }
+        });
 }
